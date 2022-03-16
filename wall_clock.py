@@ -39,9 +39,6 @@ class create_wallpaper:
         dial_color3 = dial_color2 + np.array([0, 20, 20])
         self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius-60, color=dial_color3.tolist(), thickness=-1)
 
-        dial_color3 = dial_color2 + np.array([10, 10, 60])
-        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius-180, color=dial_color3.tolist(), thickness=-1)
-
         scale_color = dial_color + np.array([50, 60, 50])
         #盤面の作成
         for i in range(12):    #5分毎の目盛
@@ -169,7 +166,7 @@ class create_wallpaper:
         xs2, ys2 = self.rotate_xy([self.xs2, self.ys2], angles2)
         clock = cv2.line(clock, pt1=(xs1, ys1), pt2=(xs2, ys2), color=self.clockhand_colors.tolist(), thickness=2)
 
-        img, moving_dial = self.move_dial(img, i0)
+        #img, moving_dial = self.move_dial(img, i0)
 
         if self.reverse:
             img += clock
@@ -177,7 +174,7 @@ class create_wallpaper:
             img -= clock
 
         img = np.clip(img, 0, 255)
-        return img, self.mask, clock, moving_dial
+        return img, self.mask, clock
 
 
 if __name__ == "__main__":
@@ -193,7 +190,7 @@ if __name__ == "__main__":
         elif colorx <60:
             dial_color=[-10 + i, 25, 160 - 2*i]
 
-        img, mask, clock, moving_dial = wp.create_clock(i)
+        img, mask, clock = wp.create_clock(i)
 
         time_delta=0
 
