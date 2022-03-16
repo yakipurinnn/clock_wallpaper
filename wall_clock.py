@@ -1,5 +1,6 @@
 from unicodedata import name
 import cv2
+from cv2 import FlannBasedMatcher
 import numpy as np
 import ctypes
 import time
@@ -194,6 +195,8 @@ if __name__ == "__main__":
 
         img, mask, clock, moving_dial = wp.create_clock(i)
 
+        time_delta=0
+
         cv2.imwrite("clock_img.jpg", img)
         """
         cv2.imwrite("mask.jpg", mask)
@@ -204,6 +207,13 @@ if __name__ == "__main__":
         SPI_SETDESKWALLPAPER = 20
         ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, r"C:\Users\Takan\OneDrive\デスクトップ\python\時計付壁紙\clock_img.jpg", 0)
         time.sleep(0.24)
+
+        pre_s = int(datetime.datetime.now().strftime("%S"))
+        now_s = int(datetime.datetime.now().strftime("%S"))
+
+        while pre_s == now_s:    #秒数が1進んだら壁紙を更新
+            now_s = int(datetime.datetime.now().strftime("%S"))
+            time.sleep(0.1)
 
         i += 1
         print("i:", i, dial_color)
