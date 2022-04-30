@@ -8,12 +8,11 @@ import datetime
 import glob
 import matplotlib.pyplot as plt
 
-
 def get_img_name():   #画像のファイルパスを取得する
     files = glob.glob("./main_wallpaper/*")
     return files[0]
 
-class create_wallpaper:
+class createWallpaper:
     def __init__ (self, img_path, center_xy=[1550, 400], dial_color=[50, 25, 40], clockhand_color=[0, 0, 200], reverse=False):
         self.reverse = reverse
         self.img = cv2.imread(img_path)
@@ -180,7 +179,7 @@ class create_wallpaper:
 if __name__ == "__main__":
     img_path = get_img_name()
     dial_color=[50, 25, 40]
-    wp = create_wallpaper(img_path, dial_color=dial_color)
+    wp = createWallpaper(img_path, dial_color=dial_color)
 
     i=0
     while True:
@@ -213,4 +212,4 @@ if __name__ == "__main__":
             time.sleep(0.1)
 
         i += 1
-        print("i:", i, dial_color)
+        #print("i:", i, dial_color)
