@@ -1,3 +1,4 @@
+import os
 from unicodedata import name
 import cv2
 from cv2 import FlannBasedMatcher
@@ -13,7 +14,7 @@ def get_img_name():   #画像のファイルパスを取得する
     return files[0]
 
 class createWallpaper:
-    def __init__ (self, img_path, center_xy=[1550, 400], dial_color=[50, 25, 40], clockhand_color=[0, 0, 200], reverse=False):
+    def __init__ (self, img_path, center_xy=[1550, 400], dial_color=[50, 25, 40], clockhand_color=[0, 0, 200], size=1, reverse=False):
         self.reverse = reverse
         self.img = cv2.resize(cv2.imread(img_path), dsize=(1920, 1080))
         self.img = np.array(self.img, dtype="int16")
@@ -26,8 +27,8 @@ class createWallpaper:
 
         self.moving_color = dial_color + np.array([0, 10, 30])
 
-        outer_radius = 300
-        inner_radius = 220
+        outer_radius = int(300*size)
+        inner_radius = int(outer_radius * 220/300)
 
         self.mask = np.zeros_like(self.img)
         self.mask = cv2.circle(img=self.mask, center=center_xy, radius=outer_radius, color=dial_color.tolist(), thickness=-1)
@@ -36,13 +37,13 @@ class createWallpaper:
         self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius, color=dial_color2.tolist(), thickness=-1)
 
         dial_color3 = dial_color2 + np.array([0, 20, 20])
-        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius-60, color=dial_color3.tolist(), thickness=-1)
+        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=int(inner_radius*0.727), color=dial_color3.tolist(), thickness=-1)
 
         scale_color = dial_color + np.array([50, 60, 50])
         #盤面の作成
         for i in range(12):    #5分毎の目盛
             x1, y1 = 0, inner_radius
-            x2, y2 = 0, outer_radius+8
+            x2, y2 = 0, (outer_radius*1.025)
             angle = np.pi/6 * i
 
             x1, y1 = self.rotate_xy([x1, y1], angle)
@@ -51,8 +52,8 @@ class createWallpaper:
             self.mask = cv2.line(self.mask, pt1=(x1, y1), pt2=(x2, y2), color=scale_color.tolist(), thickness=5)
 
             #5分毎の目盛(内側)
-            x1, y1 = 0, inner_radius-62
-            x2, y2 = 0, inner_radius-100
+            x1, y1 = 0, inner_radius*0.718
+            x2, y2 = 0, inner_radius*0.545
 
             x1, y1 = self.rotate_xy([x1, y1], angle)
             x2, y2 = self.rotate_xy([x2, y2], angle)
@@ -60,8 +61,8 @@ class createWallpaper:
             self.mask = cv2.line(self.mask, pt1=(x1, y1), pt2=(x2, y2), color=scale_color.tolist(), thickness=5)
 
         for i in range(60):    #1分毎の目盛
-            x1, y1 = 0, inner_radius+60
-            x2, y2 = 0, outer_radius-2
+            x1, y1 = 0, inner_radius*1.273
+            x2, y2 = 0, outer_radius*1.005
             angle = np.pi/30 * i
 
             x1, y1 = self.rotate_xy([x1, y1], angle)
@@ -70,8 +71,8 @@ class createWallpaper:
             self.mask = cv2.line(self.mask, pt1=(x1, y1), pt2=(x2, y2), color=scale_color.tolist(), thickness=3)
 
             #1分毎の目盛(内側)
-            x1, y1 = 0, inner_radius-62
-            x2, y2 = 0, inner_radius-80
+            x1, y1 = 0, inner_radius*0.718
+            x2, y2 = 0, inner_radius*0.636
 
             x1, y1 = self.rotate_xy([x1, y1], angle)
             x2, y2 = self.rotate_xy([x2, y2], angle)
@@ -81,35 +82,35 @@ class createWallpaper:
         scale_color = dial_color + np.array([10, 10, 10])
 
         for i in range(7):    #装飾七角形
-            x1, y1 = 0, outer_radius+49
-            x2, y2 = 0, outer_radius+49
+            x1, y1 = 0, outer_radius*1.163
+            x2, y2 = 0, outer_radius*1.163
             angle1 = np.pi/3.5 * (i-0.5)
             angle2 = np.pi/3.5 * (i+0.5)
 
             x1, y1 = self.rotate_xy([x1, y1], angle1)
             x2, y2 = self.rotate_xy([x2, y2], angle2)
 
-            self.mask = cv2.circle(img=self.mask, center=(x1, y1), radius=50, color=scale_color.tolist(), thickness=3)    #各頂点の円
+            self.mask = cv2.circle(img=self.mask, center=(x1, y1), radius=int(inner_radius*0.227), color=scale_color.tolist(), thickness=3)    #各頂点の円
             self.mask = cv2.line(self.mask, pt1=(x1, y1), pt2=(x2, y2), color=scale_color.tolist(), thickness=3)
 
 
         self.mask = cv2.circle(img=self.mask, center=center_xy, radius=outer_radius, color=(180, 100, 100), thickness=3)  #外枠二重線内側
-        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=outer_radius+10, color=(180, 100, 100), thickness=3)   #外枠二重線外側
-        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius-70, color=(180, 100, 100), thickness=2)   #内枠
-        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=inner_radius-120, color=(180, 100, 100), thickness=2)   #内枠
+        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=int(outer_radius*1.033), color=(180, 100, 100), thickness=3)   #外枠二重線外側
+        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=int(inner_radius*0.682), color=(180, 100, 100), thickness=2)   #内枠
+        self.mask = cv2.circle(img=self.mask, center=center_xy, radius=int(inner_radius*0.455), color=(180, 100, 100), thickness=2)   #内枠
 
         #針の初期位置
-        self.xh1, self.yh1 = 0, -(inner_radius-60)    #短針 順方向
-        self.xh2, self.yh2 = 0, -(inner_radius-180)    #短針 逆方向
+        self.xh1, self.yh1 = 0, -(inner_radius*0.727)    #短針 順方向
+        self.xh2, self.yh2 = 0, -(inner_radius*0.182)    #短針 逆方向
 
-        self.xm1, self.ym1 = 0, -(outer_radius-20)    #長針 順方向
-        self.xm2, self.ym2 = 0, -(outer_radius-260)    #長針 逆方向
+        self.xm1, self.ym1 = 0, -(outer_radius*0.909)    #長針 順方向
+        self.xm2, self.ym2 = 0, -(outer_radius*0.133)    #長針 逆方向
 
-        self.xs1, self.ys1 = 0, -(outer_radius-20)    #長針 順方向
-        self.xs2, self.ys2 = 0, -(outer_radius-260)    #長針 逆方向
+        self.xs1, self.ys1 = 0, -(outer_radius*0.933)    #長針 順方向
+        self.xs2, self.ys2 = 0, -(outer_radius*0.133)    #長針 逆方向
 
         self.dark_mask = np.zeros_like(self.img)
-        self.dark_mask = cv2.circle(img=self.dark_mask, center=center_xy, radius=outer_radius+120, color=(20, 20, 20), thickness=-1)
+        self.dark_mask = cv2.circle(img=self.dark_mask, center=center_xy, radius=int(outer_radius*1.4), color=(20, 20, 20), thickness=-1)
 
         if reverse:
             self.img += self.dark_mask
