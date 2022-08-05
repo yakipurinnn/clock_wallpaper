@@ -15,7 +15,7 @@ def get_img_name():   #画像のファイルパスを取得する
 class createWallpaper:
     def __init__ (self, img_path, center_xy=[1550, 400], dial_color=[50, 25, 40], clockhand_color=[0, 0, 200], reverse=False):
         self.reverse = reverse
-        self.img = cv2.imread(img_path)
+        self.img = cv2.resize(cv2.imread(img_path), dsize=(1920, 1080))
         self.img = np.array(self.img, dtype="int16")
         dial_color = np.array(dial_color)
         self.center_xy = center_xy
